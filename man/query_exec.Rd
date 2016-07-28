@@ -8,7 +8,7 @@ query_exec(query, project, destination_table = NULL, default_dataset = NULL,
   page_size = 10000, max_pages = 10, warn = TRUE,
   create_disposition = "CREATE_IF_NEEDED",
   write_disposition = "WRITE_EMPTY", useLegacySql = TRUE,
-  maximum_billing_tier = NULL)
+  maximum_billing_tier = NULL, job_info = NULL)
 }
 \arguments{
 \item{query}{SQL query string}
@@ -48,6 +48,12 @@ for more information}
 \item{maximum_billing_tier}{(optional) customize the billing tier to
 allow High-Compute queries; see
 \href{https://cloud.google.com/bigquery/docs/reference/v2/jobs#configuration.query.maximumBillingTier}{the API documentation}
+for more information}
+
+\item{job_info}{(optional) if pass in with a non-null variable, the variable will be job result details after function ends.
+the info contains billing bytes in "job_info$statistics$query$totalBytesBilled" .
+for job detail format; see
+\href{https://cloud.google.com/bigquery/docs/reference/v2/jobs}{Job format}
 for more information}
 }
 \description{

@@ -7,6 +7,11 @@
 #'
 #' @inheritParams insert_query_job
 #' @inheritParams list_tabledata
+#' @param job_info (optional) if pass in with a non-null variable, the variable will be job result details after function ends.
+#'   the info contains billing bytes in "job_info$statistics$query$totalBytesBilled" .
+#'   for job detail format; see
+#'   \href{https://cloud.google.com/bigquery/docs/reference/v2/jobs}{Job format}
+#'   for more information
 #' @seealso Google documentation describing asynchronous queries:
 #'  \url{https://developers.google.com/bigquery/docs/queries#asyncqueries}
 #'
@@ -31,7 +36,10 @@ query_exec <- function(query, project, destination_table = NULL,
                        create_disposition = "CREATE_IF_NEEDED",
                        write_disposition = "WRITE_EMPTY",
                        useLegacySql = TRUE,
-                       maximum_billing_tier = NULL) {
+                       maximum_billing_tier = NULL,
+                       job_info = NULL) {
+
+  job_infoo <- TRUE
 
   dest <- run_query_job(query = query, project = project,
                         destination_table = destination_table,
@@ -39,7 +47,12 @@ query_exec <- function(query, project, destination_table = NULL,
                         create_disposition = create_disposition,
                         write_disposition = write_disposition,
                         useLegacySql = useLegacySql,
-                        maximum_billing_tier = maximum_billing_tier)
+                        maximum_billing_tier = maximum_billing_tier,
+                        job_info = job_infoo)
+
+  if (!is.null(job_info)) {
+    eval.parent(substitute(job_info<-job_infoo))
+  }
 
   list_tabledata(dest$projectId, dest$datasetId, dest$tableId,
     page_size = page_size, max_pages = max_pages, warn = warn)
@@ -51,7 +64,8 @@ run_query_job <- function(query, project, destination_table, default_dataset,
                           create_disposition = "CREATE_IF_NEEDED",
                           write_disposition = "WRITE_EMPTY",
                           useLegacySql = TRUE,
-                          maximum_billing_tier = NULL) {
+                          maximum_billing_tier = NULL,
+                          job_info = NULL) {
   assert_that(is.string(query), is.string(project))
 
   job <- insert_query_job(query, project, destination_table = destination_table,
@@ -61,6 +75,10 @@ run_query_job <- function(query, project, destination_table, default_dataset,
                           useLegacySql = useLegacySql,
                           maximum_billing_tier = maximum_billing_tier)
   job <- wait_for(job)
+
+  if (!is.null(job_info)) {
+    eval.parent(substitute(job_info<-job))
+  }
 
   job$configuration$query$destinationTable
 }
