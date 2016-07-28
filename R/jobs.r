@@ -22,6 +22,10 @@
 #'   \code{query}, either as a string in the format used by BigQuery or as a
 #'   list with \code{project_id} and \code{dataset_id} entries
 #' @param useLegacySql (optional) set to \code{FALSE} to enable BigQuery's standard SQL.
+#' @param maximum_billing_tier (optional) customize the billing tier to
+#'   allow High-Compute queries; see
+#'   \href{https://cloud.google.com/bigquery/docs/reference/v2/jobs#configuration.query.maximumBillingTier}{the API documentation}
+#'   for more information
 #' @family jobs
 #' @return a job resource list, as documented at
 #'   \url{https://developers.google.com/bigquery/docs/reference/v2/jobs}
@@ -32,7 +36,8 @@ insert_query_job <- function(query, project, destination_table = NULL,
                              default_dataset = NULL,
                              create_disposition = "CREATE_IF_NEEDED",
                              write_disposition = "WRITE_EMPTY",
-                             useLegacySql = TRUE) {
+                             useLegacySql = TRUE,
+                             maximum_billing_tier = NULL) {
   assert_that(is.string(project), is.string(query))
 
   url <- sprintf("projects/%s/jobs", project)
@@ -72,6 +77,10 @@ insert_query_job <- function(query, project, destination_table = NULL,
       projectId = default_dataset$project_id,
       datasetId = default_dataset$dataset_id
     )
+  }
+
+  if (!is.null(maximum_billing_tier)) {
+    body$configuration$query$maximumBillingTier <- maximum_billing_tier
   }
 
   bq_post(url, body)
