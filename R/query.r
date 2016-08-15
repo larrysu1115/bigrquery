@@ -54,6 +54,10 @@ query_exec <- function(query, project, destination_table = NULL,
     eval.parent(substitute(job_info<-job_infoo))
   }
 
+  if (max_pages <= 0) {
+    return(NULL)
+  }
+
   list_tabledata(dest$projectId, dest$datasetId, dest$tableId,
     page_size = page_size, max_pages = max_pages, warn = warn)
 }
